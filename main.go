@@ -23,5 +23,6 @@ func main() {
 	router.Use(cors.Handler)
 	database.NewRedisClient()
 	router.Post("/shorten", ShortenURL)
+	router.Get("/{id}", GetFullURL)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -5,6 +5,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/go-redis/redis"
+
+	"github.com/go-chi/chi"
+
 	"github.com/dawidcyron/base62"
 	"github.com/dawidcyron/shortener/database"
 	"github.com/valyala/fastjson"
@@ -34,4 +38,17 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	response.Message = "Success"
 	response.URL = r.Host + "/" + base62ID
 	json.NewEncoder(w).Encode(response)
+}
+
+//GetFullURL extracts base62 encoded ID from request path and uses it to search for
+//saved URL in Redis. If URL with given ID exists, redirects the user.
+func GetFullURL(w http.ResponseWriter, r *http.Request) {
+	base62ID := chi.URLParam(r, "id")
+	fullURL, err := database.RedisClient.Get(base62ID).Result()
+	if err == redis.Nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	} else if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	http.Redirect(w, r, fullURL, 301)
 }
