@@ -24,5 +24,8 @@ func main() {
 	database.NewRedisClient()
 	router.Post("/shorten", ShortenURL)
 	router.Get("/{id}", GetFullURL)
+	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Reaching weird route"))
+	})
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
