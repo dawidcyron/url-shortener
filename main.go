@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/dawidcyron/shortener/database"
 
@@ -24,8 +25,5 @@ func main() {
 	database.NewRedisClient()
 	router.Post("/shorten", ShortenURL)
 	router.Get("/{id}", GetFullURL)
-	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Reaching weird route"))
-	})
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
 }
